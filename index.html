@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A nossa história em um Album 💗</title>
+  <style>
+    :root{
+      --bg:#0e0f12;
+      --card:#14161c;
+      --ink:#f3f4f6;
+      --muted:#b7bcc7;
+      --accent:#ff4da6;
+      --accent2:#7c5cff;
+      --shadow: 0 18px 45px rgba(0,0,0,.55);
+      --paper:#f7f5ef;
+      --paper2:#fbfaf6;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background:
+            linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)),
+            url("imgs/background.jpg");
+
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      color:var(--ink);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ---------- App shell ---------- */
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:28px 18px 60px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .brand h1{
+      margin:0;
+      font-size: clamp(20px, 3vw, 34px);
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      color:var(--ink);
+      background: linear-gradient(135deg, rgba(255,77,166,.18), rgba(124,92,255,.18));
+      border:1px solid rgba(255,255,255,.12);
+      padding:10px 12px;
+      border-radius:14px;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      backdrop-filter: blur(8px);
+    }
+    button:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
+    button:active{ transform: translateY(0px); }
+
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.12);
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ---------- Password gate ---------- */
+    .gate{
+      position:fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      padding:18px;
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(255,77,166,.25), transparent 55%),
+        radial-gradient(700px 450px at 100% 25%, rgba(124,92,255,.25), transparent 55%),
+        rgba(6,7,10,.88);
+      z-index:999;
+    }
+
+    .gate-card{
+      width:min(520px, 100%);
+      border-radius:22px;
+      background: rgba(20,22,28,.75);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      padding:18px 18px 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .gate-card h2{
+      margin:0 0 6px;
+      font-size:22px;
+    }
+    .gate-card p{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    input{
+      flex:1;
+      min-width:200px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color:var(--ink);
+      outline:none;
+    }
+    input:focus{ border-color: rgba(255,77,166,.6); }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(255,255,255,.55);
+    }
+
+    .error{
+      margin-top:10px;
+      color:#ffd1e6;
+      font-size:13px;
+      display:none;
+    }
+
+    /* ---------- Views ---------- */
+    .view{ display:none; }
+    .view.active{ display:block; }
+
+    /* ---------- Polaroid wall ---------- */
+    .wall{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: repeat( auto-fit, minmax(180px, 1fr) );
+      gap:18px;
+    }
+
+    .polaroid{
+      position:relative;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 14px 34px rgba(0,0,0,.5);
+      padding:14px 14px 16px;
+      transition: transform .16s ease;
+      cursor:pointer;
+      overflow:hidden;
+    }
+    .polaroid:hover{ transform: translateY(-4px) rotate(-.2deg); }
+
+    /* “papel” da polaroid */
+    .polaroid::before{
+      content:"";
+      position:absolute;
+      inset:10px 10px 12px 10px;
+      background: linear-gradient(180deg, var(--paper2), var(--paper));
+      border-radius:14px;
+      z-index:0;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+    }
+
+    .shot{
+      position:relative;
+      z-index:1;
+      height:170px;
+      border-radius:12px;
+      overflow:hidden;
+      margin:8px 8px 0;
+      background:#d9d3c8;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+    }
+    .shot img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter: contrast(1.03) saturate(1.05);
+    }
+
+    .caption{
+      position:relative;
+      z-index:1;
+      margin:10px 10px 0;
+      color:#1b1c20;
+    }
+    .caption h3{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .caption p{
+      margin:6px 0 0;
+      font-size:12px;
+      color: rgba(27,28,32,.72);
+      line-height:1.25;
+    }
+
+    /* random tilt per item (via CSS var) */
+    .polaroid{
+      transform: rotate(var(--tilt, 0deg));
+    }
+    .polaroid:hover{
+      transform: translateY(-4px) rotate(calc(var(--tilt, 0deg) * .5));
+    }
+
+    /* ---------- Category gallery ---------- */
+    .category-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      padding:14px 14px;
+      border-radius:18px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+    }
+    .category-head .meta h2{
+      margin:0;
+      font-size:20px;
+    }
+    .category-head .meta p{
+      margin:6px 0 0;
+      color:var(--muted);
+      line-height:1.35;
+      max-width:70ch;
+    }
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap:12px;
+    }
+
+    .photo{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 10px 25px rgba(0,0,0,.45);
+      cursor: zoom-in;
+      transition: transform .12s ease;
+    }
+    .photo:hover{ transform: translateY(-2px); }
+    .photo img{
+      width:100%;
+      height:210px;
+      object-fit:cover;
+      display:block;
+    }
+    .photo .note{
+      padding:10px 10px 12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+
+    /* ---------- Lightbox ---------- */
+    .lightbox{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background: rgba(0,0,0,.82);
+      z-index:1000;
+    }
+    .lightbox.active{ display:flex; }
+    .lb-card{
+      width:min(980px, 100%);
+      background: rgba(15,16,20,.7);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .lb-img{
+      width:100%;
+      max-height:72vh;
+      object-fit:contain;
+      display:block;
+      background:#0b0c10;
+    }
+    .lb-bar{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:12px 12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* ---------- Small screens ---------- */
+    @media (max-width:560px){
+      .shot{ height:150px; }
+      .photo img{ height:190px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Password Gate -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <h2>Álbum reservado para meu girassol💞</h2>
+      <p>Acerte a senha pra entrar</p>
+
+      <div class="row">
+        <input id="passInput" type="password" placeholder="Senha..." autocomplete="current-password" />
+        <button id="enterBtn">Entrar</button>
+      </div>
+
+      <div class="error" id="gateError">Senha incorreta. Você não sabe a data ??? 😱</div>
+      <div class="hint">Dica: Nosso Primeiro Encontro</div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div class="wrap" id="app" aria-hidden="true">
+    <header>
+      <div class="brand">
+        <h1>Nosso Álbum 💗</h1>
+        <p>Uma parede de memorias.</p>
+      </div>
+
+      <div class="top-actions">
+        <span class="pill" id="statusPill">Parede de memorias</span>
+        <button id="logoutBtn" title="Volta pra tela de senha">Sair</button>
+      </div>
+    </header>
+
+    <!-- View: Wall -->
+    <section class="view active" id="wallView">
+      <div class="wall" id="wall"></div>
+    </section>
+
+    <!-- View: Category -->
+    <section class="view" id="categoryView">
+      <div class="category-head">
+        <div class="meta">
+          <h2 id="catTitle">Categoria</h2>
+          <p id="catDesc"></p>
+        </div>
+        <div class="row">
+          <span class="pill" id="catCount">0 fotos</span>
+          <button id="backBtn">← Voltar</button>
+        </div>
+      </div>
+
+      <div class="grid" id="gallery"></div>
+    </section>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualizador de foto">
+    <div class="lb-card">
+      <img class="lb-img" id="lbImg" alt="Foto ampliada" />
+      <div class="lb-bar">
+        <span id="lbNote"></span>
+        <button id="lbClose">Fechar ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************************************************************
+     *CONFIGURAÇÕES
+     ************************************************************/
+    const PASSWORD = "13092025";
+
+    const ALBUM = [
+      {
+        id: "primeiro-encontro",
+        title: "First Date",
+        desc: "",
+        cover: "imgs/primeiro.jpg",
+        photos: [
+          { src: "imgs/primeiro-1.jpg", note: "Eu tava muito nervoso kkkkkkk. Nem conseguir falar direito eu conseguia." },
+          { src: "imgs/primeiro-2.jpg", note: "" },
+          { src: "imgs/primeiro-3.jpg", note: "Eu nesse dia: 100% bobo por você." }
+        ]
+      },
+      {
+        id: "comidinhas",
+        title: "Comidinhas & Dates",
+        desc: "Se tem comida, tem alegria — e a gente é prova viva.",
+        cover: "imgs/comida.jpg",
+        photos: [
+          { src: "imgs/comida-1.jpg", note: "A mesa mais bonita: a que tem nós." },
+          { src: "imgs/comida-2.jpg", note: "Docinho pra combinar com você." }
+        ]
+      },
+      {
+        id: "viagens",
+        title: "Viagens & Rolês",
+        desc: "A gente coleciona ruas, risadas e histórias.",
+        cover: "imgs/viagem.jpg",
+        photos: [
+          { src: "imgs/viagem-1.jpg", note: "Esse dia foi filme." },
+          { src: "imgs/viagem-2.jpg", note: "Eu olhando você e esquecendo o resto do mundo." }
+        ]
+      },
+      {
+        id: "casa",
+        title: "Nosso Cantinho",
+        desc: "A paz que mora nos detalhes (e no teu abraço).",
+        cover: "imgs/casa.jpg",
+        photos: [
+          { src: "imgs/casa-1.jpg", note: "Domingo com cara de lar." },
+          { src: "imgs/casa-2.jpg", note: "Silêncio bom é com você." }
+        ]
+      }
+    ];
+
+    /************************************************************
+     * 2) ELEMENTOS
+     ************************************************************/
+    const gate = document.getElementById("gate");
+    const gateError = document.getElementById("gateError");
+    const passInput = document.getElementById("passInput");
+    const enterBtn = document.getElementById("enterBtn");
+
+    const app = document.getElementById("app");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const statusPill = document.getElementById("statusPill");
+
+    const wallView = document.getElementById("wallView");
+    const categoryView = document.getElementById("categoryView");
+
+    const wall = document.getElementById("wall");
+    const gallery = document.getElementById("gallery");
+
+    const catTitle = document.getElementById("catTitle");
+    const catDesc = document.getElementById("catDesc");
+    const catCount = document.getElementById("catCount");
+    const backBtn = document.getElementById("backBtn");
+
+    const lightbox = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lbImg");
+    const lbNote = document.getElementById("lbNote");
+    const lbClose = document.getElementById("lbClose");
+
+    /************************************************************
+     * 3) FUNÇÕES DE UI
+     ************************************************************/
+    function setLoggedIn(isIn){
+      gate.style.display = isIn ? "none" : "grid";
+      app.setAttribute("aria-hidden", isIn ? "false" : "true");
+      if(!isIn){
+        passInput.value = "";
+        gateError.style.display = "none";
+        showWall();
+      }
+    }
+
+    function showWall(){
+      wallView.classList.add("active");
+      categoryView.classList.remove("active");
+      statusPill.textContent = "Modo: Parede de polaroids";
+    }
+
+    function showCategory(cat){
+      wallView.classList.remove("active");
+      categoryView.classList.add("active");
+      statusPill.textContent = "Modo: " + cat.title;
+
+      catTitle.textContent = cat.title;
+      catDesc.textContent = cat.desc || "";
+      catCount.textContent = `${cat.photos.length} foto(s)`;
+
+      gallery.innerHTML = "";
+      cat.photos.forEach((p) => {
+        const card = document.createElement("div");
+        card.className = "photo";
+        card.innerHTML = `
+          <img src="${p.src}" alt="${cat.title}" loading="lazy">
+          <div class="note">${p.note ? p.note : ""}</div>
+        `;
+        card.addEventListener("click", () => openLightbox(p.src, p.note || ""));
+        gallery.appendChild(card);
+      });
+    }
+
+    function openLightbox(src, note){
+      lbImg.src = src;
+      lbNote.textContent = note;
+      lightbox.classList.add("active");
+    }
+    function closeLightbox(){
+      lightbox.classList.remove("active");
+      lbImg.src = "";
+      lbNote.textContent = "";
+    }
+
+    /************************************************************
+     * 4) RENDER DA PAREDE DE POLAROIDS (CATEGORIAS)
+     ************************************************************/
+    function renderWall(){
+      wall.innerHTML = "";
+
+      ALBUM.forEach((cat, idx) => {
+        const item = document.createElement("div");
+        item.className = "polaroid";
+
+        // tilt aleatório leve, mas determinístico pelo índice
+        const tilts = [-2.2, -1.1, -0.4, 0.6, 1.2, 2.0];
+        const tilt = tilts[idx % tilts.length];
+        item.style.setProperty("--tilt", tilt + "deg");
+
+        item.innerHTML = `
+          <div class="shot">
+            <img src="${cat.cover}" alt="Capa: ${cat.title}" loading="lazy">
+          </div>
+          <div class="caption">
+            <h3>${cat.title}</h3>
+            <p>${cat.desc || ""}</p>
+          </div>
+        `;
+
+        item.addEventListener("click", () => showCategory(cat));
+        wall.appendChild(item);
+      });
+    }
+
+    /************************************************************
+     * 5) EVENTOS
+     ************************************************************/
+    function tryEnter(){
+      const attempt = passInput.value;
+      if(attempt === PASSWORD){
+        setLoggedIn(true);
+      }else{
+        gateError.style.display = "block";
+      }
+    }
+
+    enterBtn.addEventListener("click", tryEnter);
+    passInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") tryEnter();
+    });
+
+    logoutBtn.addEventListener("click", () => setLoggedIn(false));
+    backBtn.addEventListener("click", showWall);
+
+    lbClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (e) => {
+      if(e.target === lightbox) closeLightbox();
+    });
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeLightbox();
+    });
+
+    /************************************************************
+     * 6) START
+     ************************************************************/
+    renderWall();
+    setLoggedIn(false);
+  </script>
+</body>
+</html>
